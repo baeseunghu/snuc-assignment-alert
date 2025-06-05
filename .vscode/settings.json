@@ -1,0 +1,11 @@
+{
+  // 🚨 터미널에서 확인한 JDK 17 경로를 정확히 여기에 붙여넣으세요!
+  "java.jdt.ls.java.home": "/Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home",
+
+  // Maven 표준 소스 폴더
+  "java.project.sourcePaths": ["src/main/java"],
+
+  // 에디터 내 기본 클래스 경고(Validation) 비활성화
+  "java.validate.enabled": false,
+  "java.format.settings.url": ".vscode/java-formatter.xml"
+}
