@@ -121,13 +121,40 @@ footer {
     overflow: hidden;
     animation: fadeInUp 1s;
 }
-.assignment-table th, .assignment-table td {
-    border-bottom: 1px solid #eee;
+
+/* 헤더 */
+.assignment-table th {
+    border-bottom: 3px solid #14347d; /* 헤더 가로줄 */
+    border-right: 2px solid #14347d;  /* 헤더 세로줄 */
+    padding: 1.1rem 0.5rem;
+    text-align: center;
+    font-size: 1.12rem;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+    background: #f4f7fc;
+    color: #14347d;
+}
+.assignment-table th:last-child {
+    border-right: none; /* 마지막 열은 세로선 X */
+}
+
+/* 바디 */
+.assignment-table td {
+    border-bottom: 2px solid #3466d6; /* 바디 가로줄 */
+    border-right: 1.5px solid #aac3f7;  /* 바디 세로줄 (조금 더 연하게) */
     padding: 1.1rem 0.5rem;
     text-align: center;
     font-size: 1.12rem;
     font-weight: 500;
     letter-spacing: -0.2px;
+    background: #fff;
+}
+.assignment-table td:last-child {
+    border-right: none; /* 마지막 열은 세로선 X */
+}
+
+.assignment-table tr:nth-child(even) td {
+    background: #f8fafd;
 }
 
 .mini-timetable {
