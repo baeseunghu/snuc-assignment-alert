@@ -1,8 +1,7 @@
 // js/assignment.js
 
-// 과제 + 시험 샘플 데이터
 let assignments = [
-  { courseName: "컴퓨터공학", title: "자바 과제", dueDate: "2025-06-05", assignTime: "목4" },
+  { courseName: "컴퓨터공학", title: "자바 과제", dueDate: "2025-06-07", assignTime: "목4" },
   { courseName: "영어", title: "에세이 제출", dueDate: "2025-06-12", assignTime: "수6" },
   { courseName: "공통", title: "중간고사", dueDate: "2025-04-20~2025-04-24", examType: "중간" },
   { courseName: "공통", title: "기말고사", dueDate: "2025-06-20~2025-06-25", examType: "기말" }
@@ -18,14 +17,13 @@ function renderAssignments() {
   }
   assignments.forEach((a, idx) => {
     if (a.examType) {
-      // 시험 일정 처리 (기간)
       const [start, end] = a.dueDate.split("~");
-      const today = new Date();
+      const nowKST = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Seoul" }));
       const startDate = new Date(start);
       const endDate = new Date(end);
       let label = "";
-      if (today < startDate) label = `D-${Math.ceil((startDate - today) / (1000 * 60 * 60 * 24))} 시작`;
-      else if (today > endDate) label = "종료";
+      if (nowKST < startDate) label = `D-${Math.ceil((startDate - nowKST) / (1000 * 60 * 60 * 24))} 시작`;
+      else if (nowKST > endDate) label = "종료";
       else label = "진행중";
       let dateLabel = `${start} ~ ${end} / ${label}`;
       list.innerHTML += `
@@ -37,12 +35,12 @@ function renderAssignments() {
         </tr>
       `;
     } else {
-      // 일반 과제 처리
-      const dueDateObj = new Date(a.dueDate);
+      const dueDateObj = new Date(a.dueDate + "T00:00:00+09:00");
       const days = ["일", "월", "화", "수", "목", "금", "토"];
       const yoil = days[dueDateObj.getDay()];
-      const today = new Date(); today.setHours(0,0,0,0);
-      const diffDay = Math.ceil((dueDateObj - today)/(1000*60*60*24));
+      const nowKST = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Seoul" }));
+      nowKST.setHours(0,0,0,0);
+      const diffDay = Math.ceil((dueDateObj - nowKST)/(1000*60*60*24));
       let ddayLabel = "";
       if (diffDay === 0) ddayLabel = "D-DAY";
       else if (diffDay > 0) ddayLabel = `D-${diffDay}`;
@@ -62,7 +60,7 @@ function renderAssignments() {
   });
 }
 
-// ========== 폼 열기/닫기/제출 ==========
+// 폼 열기/닫기/삭제
 function showForm() {
   document.getElementById("assignment-form").style.display = "block";
 }
@@ -74,9 +72,14 @@ function deleteAssignment(idx) {
   if (confirm("정말 삭제할까요?")) {
     assignments.splice(idx, 1);
     renderAssignments();
+    // 삭제 후에도 알림 다시 체크
+    if (typeof deadlineNotification === "function") {
+      deadlineNotification(assignments);
+    }
   }
 }
 
+// **[변경] 과제 추가 시 즉시 알림 체크**
 document.getElementById("assignment-form").onsubmit = function(e) {
   e.preventDefault();
   const courseName = document.getElementById("courseName").value.trim();
@@ -87,10 +90,16 @@ document.getElementById("assignment-form").onsubmit = function(e) {
     assignments.push({ courseName, title, dueDate, assignTime });
     renderAssignments();
     hideForm();
+
+    // ➡️ 새로 추가할 때마다 알림 체크
+    if (typeof deadlineNotification === "function") {
+      deadlineNotification(assignments);
+    }
   }
 };
 
-// ========== 초기 실행 ==========
+// ========== 초기 실행 및 알림 연동 ==========
 window.addEventListener('DOMContentLoaded', () => {
-  renderAssignments();
+    renderAssignments();
+    setupAlert(assignments);  // ← 알림 기능 연동 (alert.js 필요)
 });

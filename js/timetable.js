@@ -2,38 +2,38 @@
 
 const timetableKey = 'snuctimetable';
 
-// 시간표 데이터 구조: [{ days: [ {subject, professor, room, color}, ...월~금 5개 ] }, ...]  (교시 수만큼)
+// 시간표 데이터: [{days: [월,화,수,목,금]}, ...]
 let timetable = [];
 
-// ========== 미니 시간표 위젯 (상단) ==========
+// === 미니 위젯 상단에 항상 최신 반영 ===
 function renderMiniTimetable() {
   const widget = document.getElementById('mini-timetable-widget');
   if (!widget) return;
-  let html = '<div class="mini-timetable"><table><tr><th></th>';
+  let mini = '<div class="mini-timetable"><table><tr><th></th>';
   const days = ['월','화','수','목','금'];
-  days.forEach(d => html += `<th>${d}</th>`);
-  html += '</tr>';
+  days.forEach(d => mini += `<th>${d}</th>`);
+  mini += '</tr>';
 
   for (let i = 0; i < timetable.length; i++) {
-    html += `<tr><th>${i+1}교시</th>`;
+    mini += `<tr><th>${i+1}교시</th>`;
     for (let d = 0; d < 5; d++) {
       const cell = timetable[i]?.days?.[d];
       if (cell && cell.subject) {
-        html += `<td class="cell" title="강의실: ${cell.room || ''}\n교수: ${cell.professor || ''}" style="background:${cell.color||'#cce0ff'}">${cell.subject}</td>`;
+        mini += `<td class="cell" title="강의실:${cell.room||''}\n교수:${cell.professor||''}" style="background:${cell.color||'#cce0ff'}">${cell.subject}</td>`;
       } else {
-        html += `<td></td>`;
+        mini += `<td></td>`;
       }
     }
-    html += '</tr>';
+    mini += '</tr>';
   }
-  html += '</table></div>';
-  widget.innerHTML = html;
+  mini += '</table></div>';
+  widget.innerHTML = mini;
 }
 
-// ========== 시간표 메인 테이블 ==========
+// === timetable.html에서만 동작 ===
 function renderTable() {
   const tbody = document.querySelector('#editable-timetable tbody');
-  if (!tbody) return;
+  if (!tbody) return; // assignment.html에서는 skip
   tbody.innerHTML = '';
   for (let i = 0; i < timetable.length; i++) {
     const row = document.createElement('tr');
@@ -54,7 +54,6 @@ function renderTable() {
   }
 }
 
-// ========== 모달 열기/닫기/삭제 ==========
 let modalRow = 0, modalCol = 0;
 function openModal(row, col, cell) {
   modalRow = row; modalCol = col;
@@ -75,18 +74,16 @@ function deleteCell() {
   renderMiniTimetable();
 }
 
-// ========== 모달 submit 및 동기화 ==========
-document.addEventListener('DOMContentLoaded', () => {
-  // localStorage에서 시간표 불러오기 (없으면 5교시 x 5일)
+document.addEventListener('DOMContentLoaded', ()=>{
   const saved = localStorage.getItem(timetableKey);
   if (saved) timetable = JSON.parse(saved);
-  else timetable = Array.from({length: 5}, () => ({days: [{},{},{},{},{}]}));
+  else timetable = Array.from({length: 5}, ()=>({days: [{},{},{},{},{}]}));
   renderTable();
   renderMiniTimetable();
 
   const modalForm = document.getElementById('modal-form');
   if (modalForm) {
-    modalForm.onsubmit = function(e) {
+    modalForm.onsubmit = function(e){
       e.preventDefault();
       timetable[modalRow].days[modalCol] = {
         subject: document.getElementById('modal-subject').value,
@@ -102,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// ========== 교시 추가/저장/초기화 ==========
+// timetable.html에서만 사용
 function addPeriod() {
   timetable.push({days: [{},{},{},{},{}]});
   renderTable();
@@ -114,7 +111,7 @@ function saveTimetable() {
   renderMiniTimetable();
 }
 function resetTimetable() {
-  timetable = Array.from({length: 5}, () => ({days: [{},{},{},{},{}]}));
+  timetable = Array.from({length: 5}, ()=>({days: [{},{},{},{},{}]}));
   saveTimetable();
   renderTable();
   renderMiniTimetable();
